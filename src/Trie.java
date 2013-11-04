@@ -29,10 +29,14 @@ public class Trie {
 		if(word.length() <= 0)
 			return false;
 			
-		if(head.getChar() != word.charAt(0))
+		if(this.head.getChar() != word.charAt(0))
 			return false;
 		
-		temporary_node = head;
+		temporary_node = this.head;
+		
+		/*if(word.length() == 1)
+			temporary_node.updateEnd();
+			return true;*/
 		
 		for(i=1; i < word.length(); ++i){
 			if((temporary_child = temporary_node.getChild(word.charAt(i))) == null)

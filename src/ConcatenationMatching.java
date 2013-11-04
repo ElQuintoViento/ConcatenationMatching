@@ -22,6 +22,7 @@ public class ConcatenationMatching {
 			Trie temporary_trie;
 			LinkedList temporary_list;
 			LinkedList[] alphabetical_lists = new LinkedList[26];
+			LinkedList[] formable_words = new LinkedList[26];
 			Trie[] alphabetical_tries = new Trie[26];
 			Thread[] trie_threads = new Thread[26];
 			

@@ -1,7 +1,8 @@
 
 public class CreateTrieThread implements Runnable{
 	
-	//
+	
+	// Attributes
 	private WordNode head;
 	private Trie current_trie;
 	
@@ -14,10 +15,12 @@ public class CreateTrieThread implements Runnable{
 	
 	@Override
 	public void run() {
-		WordNode temporary_node = this.head.getPrevious();
+		WordNode temporary_node = this.head;
 		
 		if(temporary_node == null)
 			return;
+		
+		temporary_node = temporary_node.getPrevious();
 		
 		do{
 			temporary_node = temporary_node.getNext();
