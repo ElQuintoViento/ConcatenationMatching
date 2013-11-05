@@ -58,6 +58,10 @@ public class CharNode {
 		this.children.add(child);
 	}
 	
+	public boolean hasChildren(){
+		return (children.size() != 0);
+	}
+	
 	public CharNode getChild(char child){
 		for(CharNode each:children){
 			if(child == each.getChar())

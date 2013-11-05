@@ -25,11 +25,13 @@ public class ConcatenationMatching {
 			LinkedList[] formable_words = new LinkedList[26];
 			Trie[] alphabetical_tries = new Trie[26];
 			Thread[] trie_threads = new Thread[26];
+			Thread[] find_threads = new Thread[26];
 			
 			
 			for(char c = 97; c < 123; ++c){
 				alphabetical_lists[c-97] = new LinkedList();
 				alphabetical_tries[c-97] = new Trie(c);
+				formable_words[c-97] = new LinkedList();
 			}
 			
 			while((temporary_string = buffer_reader.readLine()) != null){
@@ -87,6 +89,37 @@ public class ConcatenationMatching {
 			
 			// DEBUGGING PURPOSES ONLY
 			//alphabetical_tries[0].listTrie();
+			temporary_node = alphabetical_lists[0].getHead();
+			/*if(temporary_node != null){
+				do{
+					System.out.println(temporary_node.getWord());
+					temporary_node = temporary_node.getNext();
+				}while(temporary_node != alphabetical_lists[0].getHead());
+			}*/
+			for(int i=0; i < 1; ++i){
+				System.out.println("Find Thread #" + i);
+				temporary_node = alphabetical_lists[i].getHead();
+				temporary_trie = alphabetical_tries[i];
+				
+				find_threads[i] = new Thread(new FindWordsThread(temporary_trie, alphabetical_tries, temporary_node, formable_words[i]));
+				
+				find_threads[i].start();
+			}
+			
+			for(int i=0; i < 1; ++i){
+				try {
+					find_threads[i].join();
+					System.out.println("Joined Find Thread #" + i);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			
+			for(int i=0; i < 1; ++i){
+				if((temporary_node = formable_words[i].getHead()) != null)
+					System.out.println(temporary_node.getWord());
+			}
 			
 			end_time = System.currentTimeMillis();
 			
