@@ -13,6 +13,7 @@ public class LinkedList {
 	
 	public LinkedList(WordNode head){
 		this.head = head;
+		this.counter = 0;
 		++this.counter;
 	}
 	
@@ -35,7 +36,7 @@ public class LinkedList {
 		//boolean success = false;
 		WordNode temporary_node;
 		
-		if (getSize() <= 0){
+		if (this.counter <= 0){
 			updateHead(node);
 			this.head.updatePrevious(node);
 			this.head.updateNext(node);

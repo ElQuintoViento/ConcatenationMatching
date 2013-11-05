@@ -87,26 +87,34 @@ public class ConcatenationMatching {
 				}
 			}
 			
+			temporary_node = alphabetical_lists[0].getHead();
+			while(!temporary_node.getWord().equals("abashment")){
+				temporary_node = temporary_node.getNext();
+			}
+			
+			//System.out.println("\"abashment\": " + temporary_node);
+			//System.out.println("Next Node: " + temporary_node.getNext());
+			
 			// DEBUGGING PURPOSES ONLY
 			//alphabetical_tries[0].listTrie();
-			temporary_node = alphabetical_lists[0].getHead();
+			//temporary_node = alphabetical_lists[0].getHead();
 			/*if(temporary_node != null){
 				do{
 					System.out.println(temporary_node.getWord());
 					temporary_node = temporary_node.getNext();
 				}while(temporary_node != alphabetical_lists[0].getHead());
 			}*/
-			for(int i=0; i < 1; ++i){
+			for(int i=0; i < 26; ++i){
 				System.out.println("Find Thread #" + i);
 				temporary_node = alphabetical_lists[i].getHead();
 				temporary_trie = alphabetical_tries[i];
 				
-				find_threads[i] = new Thread(new FindWordsThread(temporary_trie, alphabetical_tries, temporary_node, formable_words[i]));
+				find_threads[i] = new Thread(new FindWordsThread(temporary_trie, alphabetical_tries, alphabetical_lists[i], formable_words[i]));
 				
 				find_threads[i].start();
 			}
 			
-			for(int i=0; i < 1; ++i){
+			for(int i=0; i < 26; ++i){
 				try {
 					find_threads[i].join();
 					System.out.println("Joined Find Thread #" + i);
@@ -116,7 +124,7 @@ public class ConcatenationMatching {
 				}
 			}
 			
-			for(int i=0; i < 1; ++i){
+			for(int i=0; i < 26; ++i){
 				if((temporary_node = formable_words[i].getHead()) != null)
 					System.out.println(temporary_node.getWord());
 			}

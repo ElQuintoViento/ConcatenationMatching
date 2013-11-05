@@ -5,17 +5,17 @@ public class FindWordsThread implements Runnable{
 	// Attributes
 	private Trie current_trie;
 	private Trie[] all_tries;
-	//private LinkedList list;
+	private LinkedList list;
 	private WordNode head;
 	private LinkedList formable_words;
 	
 	
 	// Constructors
-	public FindWordsThread(Trie current_trie, Trie[] all_tries, WordNode head/*LinkedList list*/, LinkedList formable_words){
+	public FindWordsThread(Trie current_trie, Trie[] all_tries, LinkedList list, LinkedList formable_words){
 		this.current_trie = current_trie;
 		this.all_tries = all_tries;
-		//this.list = list;
-		this.head = head;
+		this.list = list;
+		this.head = list.getHead();
 		this.formable_words = formable_words;
 	}
 	
@@ -75,20 +75,23 @@ public class FindWordsThread implements Runnable{
 	@Override
 	public void run() {
 		WordNode temporary_node = this.head;
+		WordNode new_node;
 		
 		if (temporary_node != null) {
 
 			do {
-				System.out.println("Current: " + temporary_node);
-				System.out.println("   Next: " + temporary_node.getNext());
-				System.out.println("   Head: " + this.head);
+				//System.out.println("Current: " + temporary_node);
+				//System.out.println("   Next: " + temporary_node.getNext());
+				//System.out.println("   Head: " + this.head);
+				//System.out.println(" L Size: " + this.list.getSize());
+				//System.out.println(" W Size: " + this.formable_words.getSize());
 
 				if (isFormable(temporary_node.getWord())) {
-					formable_words.add(temporary_node);
+					formable_words.add(temporary_node.copy());
 					if (temporary_node.getWord().length() >= formable_words.getHead().getWord().length())
 						formable_words.updateHead(formable_words.getHead().getPrevious());
 				}
-				System.out.println("Temporary Node: " + temporary_node.getWord());
+				//System.out.println("Temporary Node: " + temporary_node.getWord());
 
 				temporary_node = temporary_node.getNext();
 				

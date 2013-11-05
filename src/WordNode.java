@@ -46,4 +46,12 @@ public class WordNode {
 		return (this.previous = previous) == previous;
 	}
 	
+	
+	// Methods
+	public WordNode copy(){
+		WordNode new_node = new WordNode(this.word);
+		
+		return new_node;
+	}
+	
 }
