@@ -31,6 +31,16 @@ public class LinkedList {
 	
 	
 	// Methods
+	public boolean clear(){
+		this.head = null;
+		this.counter = 0;
+		
+		if((this.head == null) && (this.counter == 0))
+			return true;
+		
+		return false;
+	}
+	
 	public void add(WordNode node){
 		//WordNode node = new WordNode(word);
 		//boolean success = false;
