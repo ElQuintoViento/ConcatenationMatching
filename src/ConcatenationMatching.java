@@ -99,7 +99,7 @@ public class ConcatenationMatching {
 	
 	public static void main(String[] args) {
 		
-		try(BufferedReader buffer_reader = new BufferedReader(new FileReader("C:\\Users\\Thor\\Downloads\\words.txt"))){
+		try(BufferedReader buffer_reader = new BufferedReader(new FileReader("C:\\Users\\Thor\\Downloads\\words3.txt"))){
 			
 			//
 			int index = -1;
@@ -135,7 +135,7 @@ public class ConcatenationMatching {
 			}
 			
 			// DEBUGGING PURPOSES ONLY
-			for(int i = 0; i < 26; ++i){
+			/*for(int i = 0; i < 26; ++i){
 				System.out.println("\"" + current_letter + "\" list:");
 				++current_letter;
 				
@@ -151,7 +151,7 @@ public class ConcatenationMatching {
 				}
 				
 				System.out.println();
-			}
+			}*/
 			
 			//
 			
@@ -247,18 +247,23 @@ public class ConcatenationMatching {
 				
 				for(int i = 0; i < largest_formable_words.getSize(); ++i){
 					if((i % 5) == 0)
-						System.out.println('\t');
+						System.out.print("\n\t");
 					System.out.print(next_node.getWord());
 					
 					// Adding Commas
-					if(((i+1) % (largest_formable_words.getSize() + 1)) != 0)
+					if(((i+1) % (largest_formable_words.getSize())) != 0)
 						System.out.print(", ");
 					
 					next_node = next_node.getNext();
 				}
+				
+				System.out.print("\n\nBesides the longest word, " + (formable_word_amount-largest_formable_words.getSize()) + " words can be formed from other words within the list.");
+				
 			}else{
 				System.out.println("\nTHERE ARE NO FORMABLE WORDS\n");
 			}
+			
+			System.out.println('\n');
 			
 			end_time = System.currentTimeMillis();
 			
