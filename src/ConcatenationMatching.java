@@ -51,6 +51,7 @@ public class ConcatenationMatching {
 			// DEBUGGING PURPOSES ONLY
 			for(int i = 0; i < 26; ++i){
 				System.out.println("\"" + current_letter + "\" list:");
+				++current_letter;
 				
 				temporary_list = alphabetical_lists[i];
 				
@@ -64,7 +65,6 @@ public class ConcatenationMatching {
 				}
 				
 				System.out.println();
-				++current_letter;
 			}
 			
 			//
@@ -99,23 +99,42 @@ public class ConcatenationMatching {
 					temporary_node = temporary_node.getNext();
 				}while(temporary_node != alphabetical_lists[0].getHead());
 			}*/
+			
+			//-----------------------------------------------------------------------------------------------------------------------------------
 			for(int i=0; i < 26; ++i){
 				//System.out.println("Find Thread #" + i);
 				temporary_node = alphabetical_lists[i].getHead();
 				temporary_trie = alphabetical_tries[i];
 				
-				find_threads[i] = new Thread(new FindWordsThread(temporary_trie, alphabetical_tries, alphabetical_lists[i], formable_words[i]));
+				debuggingThread(temporary_trie, alphabetical_tries, alphabetical_lists[i], formable_words[i]);
+				//find_threads[i] = new Thread(new FindWordsThread(temporary_trie, alphabetical_tries, alphabetical_lists[i], formable_words[i]));
 				
-				find_threads[i].start();
+				//find_threads[i].start();
 			}
 			
-			for(int i=0; i < 26; ++i){
+			/*for(int i=0; i < 26; ++i){
 				try {
 					find_threads[i].join();
 					//System.out.println("Joined Find Thread #" + i);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
+				}
+			}*/
+			//-------------------------------------------------------------------------------------------------------------------------------------
+			
+			// DEBUGGING PURPOSES ONLY
+			for(int i=0; i < 26; ++i){
+				WordNode the_head = formable_words[i].getHead();
+				WordNode the_next = the_head;
+				
+				if(the_head != null){
+					do{
+						System.out.println(the_next.getWord());
+						
+						the_next = the_next.getNext();
+					}while(the_next != the_head);
+					System.out.println();
 				}
 			}
 			
@@ -191,6 +210,87 @@ public class ConcatenationMatching {
 			System.err.println("Error: Continue to try!");
 		}
 
+	}
+	
+	
+	
+	
+	// SHOULD NOT BE HERE
+	// ONLY FOR DEBUGGING
+	public static void debuggingThread(Trie trie, Trie[] tries, LinkedList list, LinkedList formable_words){
+		WordNode temporary_node = list.getHead();
+		WordNode new_node;
+		WordNode head = temporary_node;
+		
+		if (temporary_node != null) {
+
+			do {
+				//System.out.println("Current: " + temporary_node);
+				//System.out.println("   Next: " + temporary_node.getNext());
+				//System.out.println("   Head: " + this.head);
+				//System.out.println(" L Size: " + this.list.getSize());
+				//System.out.println(" W Size: " + this.formable_words.getSize());
+
+				if (isFormable(temporary_node.getWord(), trie, tries)) {
+					formable_words.add(temporary_node.copy());
+					if (temporary_node.getWord().length() >= formable_words.getHead().getWord().length())
+						formable_words.updateHead(formable_words.getHead().getPrevious());
+				}
+				//System.out.println("Temporary Node: " + temporary_node.getWord());
+
+				temporary_node = temporary_node.getNext();
+				
+			} while (temporary_node != head);
+		}
+	}
+	
+	// ONLY FOR DEBUGGING
+	private static boolean isFormable(String word, Trie trie, Trie[] all_tries){
+		CharNode temporary_char;
+		boolean formable = false;
+		
+		if(word.length() <= 1)
+			return false;
+		
+		temporary_char = trie.getHead();
+		
+		for(int i=0; i < word.length()-1; ++i){
+			if(temporary_char.isEndOfWord())
+				formable = isFormable(word, i+1, all_tries);
+			
+			if(formable)
+				return true;
+			
+			if((temporary_char = temporary_char.getChild(word.charAt(i+1))) == null)
+					break;
+		}
+		
+		return formable;
+	}
+	
+	// ONLY FOR DEBUGGING
+	private static boolean isFormable(String word, int index, Trie[] all_tries){
+		int char_index = word.charAt(index) - 97;
+		boolean formable = false;
+		Trie temporary_trie = all_tries[char_index];
+		CharNode temporary_char = temporary_trie.getHead();
+		
+		for(int i=index; i < word.length()-1; ++i){
+			if(temporary_char.isEndOfWord()){
+				if(!temporary_char.hasChildren())
+					return true;
+				
+				formable = isFormable(word, i+1, all_tries);
+			}
+			
+			if(formable)
+				return true;
+			
+			if((temporary_char = temporary_char.getChild(word.charAt(i+1))) == null)
+				break;
+		}
+		
+		return formable;
 	}
 
 }
