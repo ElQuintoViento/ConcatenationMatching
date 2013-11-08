@@ -3,67 +3,78 @@ public class FindWordsThread implements Runnable{
 
 	
 	// Attributes
-	private Trie current_trie;
-	private Trie[] all_tries;
-	private LinkedList list;
-	private WordNode head;
+	private LinkedList the_words;
 	private LinkedList formable_words;
+	private Trie[] the_tries;
+	private int char_index;
 	
 	
 	// Constructors
-	public FindWordsThread(Trie current_trie, Trie[] all_tries, LinkedList list, LinkedList formable_words){
-		this.current_trie = current_trie;
-		this.all_tries = all_tries;
-		this.list = list;
-		this.head = list.getHead();
+	public FindWordsThread(LinkedList the_words, Trie[] the_tries, LinkedList formable_words, int char_index){
+		this.the_words = the_words;
+		this.the_tries = the_tries;
 		this.formable_words = formable_words;
+		this.char_index = char_index;
 	}
 	
 	
 	// Methods
-	private boolean isFormable(String word, int index){
-		int char_index = word.charAt(index) - 97;
+	private boolean isFormable(WordNode current_node, int char_index, int word_index){
+		Trie current_trie = this.the_tries[char_index];
+		CharNode current_char = current_trie.getHead();
+		String current_word = current_node.getWord();
+		int word_size = current_word.length();
 		boolean formable = false;
-		Trie temporary_trie = all_tries[char_index];
-		CharNode temporary_char = temporary_trie.getHead();
 		
-		for(int i=index; i < word.length()-1; ++i){
-			if(temporary_char.isEndOfWord()){
-				if(!temporary_char.hasChildren())
-					return true;
+		for(int i=word_index; i < word_size; ++i){
+			if(current_char.isEndOfWord()){
+				if(i == word_size-1)
+					return (formable = true);
 				
-				formable = isFormable(word, i+1);
+				if(i < word_size - 1){
+					if((formable = isFormable(current_node, (current_word.charAt(i+1)-97), i+1)))
+						return formable;
+				}
 			}
 			
-			if(formable)
-				return true;
-			
-			if((temporary_char = temporary_char.getChild(word.charAt(i+1))) == null)
-				break;
+			if(i < word_size - 1){
+				if((current_char = current_char.getChild(current_word.charAt(i+1))) == null)
+					break;
+			}
 		}
 		
 		return formable;
 	}
 	
 	
-	private boolean isFormable(String word){
-		CharNode temporary_char;
+	private boolean isFormable(WordNode current_node){
+		Trie current_trie = this.the_tries[this.char_index];
+		CharNode current_char = current_trie.getHead();
+		String current_word = current_node.getWord();
+		int word_size = current_word.length();
 		boolean formable = false;
 		
-		if(word.length() <= 1)
-			return false;
-		
-		temporary_char = current_trie.getHead();
-		
-		for(int i=0; i < word.length()-1; ++i){
-			if(temporary_char.isEndOfWord())
-				formable = isFormable(word, i+1);
-			
-			if(formable)
-				return true;
-			
-			if((temporary_char = temporary_char.getChild(word.charAt(i+1))) == null)
+		for(int i=0; i < word_size; ++i){
+			// LAST LETTER
+			if(current_char.isEndOfWord()){
+				if(i >= word_size-1)
 					break;
+				
+				if(i < word_size-1){
+					formable = isFormable(current_node, (current_word.charAt(i+1)-97), i+1);
+				}else{
+					break;
+				}
+				
+				if(formable)
+					break;
+			}
+			
+			// LAST LETTER
+			if(i < word_size-1){
+				if((current_char = current_char.getChild(current_word.charAt(i+1))) == null)
+					break;
+			}
 		}
 		
 		return formable;
@@ -74,28 +85,21 @@ public class FindWordsThread implements Runnable{
 	// Overridden Methods
 	@Override
 	public void run() {
-		WordNode temporary_node = this.head;
-		WordNode new_node;
+		WordNode current_node;
 		
-		if (temporary_node != null) {
-
-			do {
-				//System.out.println("Current: " + temporary_node);
-				//System.out.println("   Next: " + temporary_node.getNext());
-				//System.out.println("   Head: " + this.head);
-				//System.out.println(" L Size: " + this.list.getSize());
-				//System.out.println(" W Size: " + this.formable_words.getSize());
-
-				if (isFormable(temporary_node.getWord())) {
-					formable_words.add(temporary_node.copy());
-					if (temporary_node.getWord().length() >= formable_words.getHead().getWord().length())
-						formable_words.updateHead(formable_words.getHead().getPrevious());
-				}
-				//System.out.println("Temporary Node: " + temporary_node.getWord());
-
-				temporary_node = temporary_node.getNext();
+		if((current_node = this.the_words.getHead()) == null)
+			return;
+		
+		for(int i=0; i < this.the_words.getSize(); ++i){
+			if(isFormable(current_node)){
+				this.formable_words.add(current_node.copy());
 				
-			} while (temporary_node != this.head);
+				// Keep largest words next to each other
+				if(current_node.getWord().length() >= this.formable_words.getHead().getWord().length())
+					this.formable_words.updateHead(this.formable_words.getHead().getPrevious());
+			}
+			
+			current_node = current_node.getNext();
 		}
 	}
 

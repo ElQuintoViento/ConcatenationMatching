@@ -99,7 +99,7 @@ public class ConcatenationMatching {
 	
 	public static void main(String[] args) {
 		
-		try(BufferedReader buffer_reader = new BufferedReader(new FileReader("C:\\Users\\Thor\\Downloads\\words3.txt"))){
+		try(BufferedReader buffer_reader = new BufferedReader(new FileReader("C:\\Users\\Thor\\Downloads\\words.txt"))){
 			
 			//
 			int index = -1;
@@ -177,7 +177,19 @@ public class ConcatenationMatching {
 			// FIND FORMABLE WORDS
 			//-------------------------------------------------------------------------------------------------------------------------------------------------------
 			for(int i=0; i < 26; ++i){
-				findFormableWords(alphabetical_lists[i], alphabetical_tries, formable_words[i], i);
+				//findFormableWords(alphabetical_lists[i], alphabetical_tries, formable_words[i], i);
+				find_threads[i] = new Thread(new FindWordsThread(alphabetical_lists[i], alphabetical_tries, formable_words[i], i));
+				
+				find_threads[i].start();
+			}
+			
+			for(int i=0; i < 26; ++i){
+				try {
+					find_threads[i].join();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 			//-------------------------------------------------------------------------------------------------------------------------------------------------------
 
