@@ -2,7 +2,6 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 
 public class ConcatenationMatching {
 
@@ -14,85 +13,63 @@ public class ConcatenationMatching {
 		}
 	}
 	
-	// BECOMES FINDWORDSTHREAD
-	public static boolean isFormable(WordNode current_node, Trie[] the_tries, int char_index, int word_index){
-		Trie current_trie = the_tries[char_index];
-		CharNode current_char = current_trie.getHead();
-		String current_word = current_node.getWord();
-		int word_size = current_word.length();
-		boolean formable = false;
+	
+	public static void collectInput(BufferedReader buffer_reader, LinkedList[] lists) throws IOException{
+		String temporary_string;
+		int index = 0;
+		WordNode temporary_node;
 		
-		for(int i=word_index; i < word_size; ++i){
-			if(current_char.isEndOfWord()){
-				if(i == word_size-1)
-					return (formable = true);
-				
-				if(i < word_size - 1){
-					if((formable = isFormable(current_node, the_tries, (current_word.charAt(i+1)-97), i+1)))
-						return formable;
-				}
-			}
+		while((temporary_string = buffer_reader.readLine()) != null){
+			index = temporary_string.charAt(0) - 97;
 			
-			if(i < word_size - 1){
-				if((current_char = current_char.getChild(current_word.charAt(i+1))) == null)
-					break;
-			}
+			temporary_node = new WordNode(temporary_string);
+			
+			lists[index].add(temporary_node);
 		}
-		
-		return formable;
 	}
 	
-	// BECOMES FINDWORDSTHREAD
-	public static boolean isFormable(WordNode current_node, Trie[] the_tries, int char_index){
-		Trie current_trie = the_tries[char_index];
-		CharNode current_char = current_trie.getHead();
-		String current_word = current_node.getWord();
-		int word_size = current_word.length();
-		boolean formable = false;
+	
+	public static void createTries(LinkedList[] lists, Trie[] tries){
+		Thread[] trie_threads = new Thread[26];
+		WordNode temporary_node;
+		Trie temporary_trie;
 		
-		for(int i=0; i < word_size; ++i){
-			// LAST LETTER
-			if(current_char.isEndOfWord()){
-				if(i >= word_size-1)
-					break;
-				
-				if(i < word_size-1){
-					formable = isFormable(current_node, the_tries, (current_word.charAt(i+1)-97), i+1);
-				}else{
-					break;
-				}
-				
-				if(formable)
-					break;
-			}
+		for (int i = 0; i < 26; ++i) {
+			temporary_node = lists[i].getHead();
+			temporary_trie = tries[i];
 			
-			// LAST LETTER
-			if(i < word_size-1){
-				if((current_char = current_char.getChild(current_word.charAt(i+1))) == null)
-					break;
-			}
+			trie_threads[i] = new Thread(new CreateTrieThread(temporary_node, temporary_trie));
+
+			trie_threads[i].start();
 		}
 		
-		return formable;
+		for(int i=0; i < 26; ++i){
+			try {
+				trie_threads[i].join();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 	
-	// BECOMES FINDWORDSTHREAD
-	public static void findFormableWords(LinkedList the_words, Trie[] the_tries, LinkedList formable_words, int char_index){
-		WordNode current_node;
+	
+	public static void findFormableWords(LinkedList[] lists, Trie[] tries, LinkedList[] formable_words){
+		Thread[] find_threads = new Thread[26];
 		
-		if((current_node = the_words.getHead()) == null)
-			return;
-		
-		for(int i=0; i < the_words.getSize(); ++i){
-			if(isFormable(current_node, the_tries, char_index)){
-				formable_words.add(current_node.copy());
-				
-				// Keep largest words next to each other
-				if(current_node.getWord().length() >= formable_words.getHead().getWord().length())
-					formable_words.updateHead(formable_words.getHead().getPrevious());
-			}
+		for(int i=0; i < 26; ++i){
+			find_threads[i] = new Thread(new FindWordsThread(lists[i], tries, formable_words[i], i));
 			
-			current_node = current_node.getNext();
+			find_threads[i].start();
+		}
+		
+		for(int i=0; i < 26; ++i){
+			try {
+				find_threads[i].join();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 	
@@ -103,9 +80,6 @@ public class ConcatenationMatching {
 			
 			//
 			int index = -1;
-			char current_letter = 97;
-			long start_time = System.currentTimeMillis();
-			long end_time;
 			
 			//
 			String temporary_string;
@@ -115,99 +89,14 @@ public class ConcatenationMatching {
 			LinkedList[] alphabetical_lists = new LinkedList[26];
 			LinkedList[] formable_words = new LinkedList[26];
 			Trie[] alphabetical_tries = new Trie[26];
-			Thread[] trie_threads = new Thread[26];
-			Thread[] find_threads = new Thread[26];
 			
 			setupTriesAndLists(alphabetical_lists, alphabetical_tries, formable_words);
 			
-			while((temporary_string = buffer_reader.readLine()) != null){
-				index = temporary_string.charAt(0) - 97;
-				
-				// Is value from 0 to 25?
-				//if(Math.abs(index - 12.5) > 12.5)
-				
-				// DEBUGGING PURPOSES ONLY
-				//System.out.println("Index " + index +": " + temporary_string);
-				
-				temporary_node = new WordNode(temporary_string);
-				
-				alphabetical_lists[index].add(temporary_node);
-			}
+			collectInput(buffer_reader, alphabetical_lists);
 			
-			// DEBUGGING PURPOSES ONLY
-			/*for(int i = 0; i < 26; ++i){
-				System.out.println("\"" + current_letter + "\" list:");
-				++current_letter;
-				
-				temporary_list = alphabetical_lists[i];
-				
-				if(temporary_list.getSize() == 0)
-					continue;
-				
-				System.out.println("Size: " + temporary_list.getSize());
-				for(int j = 0; j < temporary_list.getSize(); ++j){
-					System.out.println('\t' + temporary_list.getHead().getWord());
-					temporary_list.updateHead(temporary_list.getHead().getNext());
-				}
-				
-				System.out.println();
-			}*/
+			createTries(alphabetical_lists, alphabetical_tries);
 			
-			//
-			
-			for (int i = 0; i < 26; ++i) {
-				temporary_node = alphabetical_lists[i].getHead();
-				temporary_trie = alphabetical_tries[i];
-				
-				trie_threads[i] = new Thread(new CreateTrieThread(temporary_node, temporary_trie));
-
-				trie_threads[i].start();
-			}
-			
-			for(int i=0; i < 26; ++i){
-				try {
-					trie_threads[i].join();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-			
-			
-			// FIND FORMABLE WORDS
-			//-------------------------------------------------------------------------------------------------------------------------------------------------------
-			for(int i=0; i < 26; ++i){
-				//findFormableWords(alphabetical_lists[i], alphabetical_tries, formable_words[i], i);
-				find_threads[i] = new Thread(new FindWordsThread(alphabetical_lists[i], alphabetical_tries, formable_words[i], i));
-				
-				find_threads[i].start();
-			}
-			
-			for(int i=0; i < 26; ++i){
-				try {
-					find_threads[i].join();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-			//-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-			
-			// DEBUGGING PURPOSES ONLY
-			/*for(int i=0; i < 26; ++i){
-				WordNode the_head = formable_words[i].getHead();
-				WordNode the_next = the_head;
-				
-				if(the_head != null){
-					do{
-						System.out.println(the_next.getWord());
-						
-						the_next = the_next.getNext();
-					}while(the_next != the_head);
-					System.out.println();
-				}
-			}*/
+			findFormableWords(alphabetical_lists, alphabetical_tries, formable_words);
 			
 			LinkedList largest_formable_words = new LinkedList();
 			WordNode next_node;
@@ -272,15 +161,11 @@ public class ConcatenationMatching {
 				System.out.print("\n\nBesides the longest word, " + (formable_word_amount-largest_formable_words.getSize()) + " words can be formed from other words within the list.");
 				
 			}else{
-				System.out.println("\nTHERE ARE NO FORMABLE WORDS\n");
+				System.out.println("\nNo words could be formed by permutations of other smaller words.\n");
 			}
 			
 			System.out.println('\n');
 			
-			end_time = System.currentTimeMillis();
-			
-			end_time = end_time - start_time;
-			System.out.println("Time: " + end_time);
 			
 		}catch(IOException ioe){
 			System.err.println("Error: Continue to try!");

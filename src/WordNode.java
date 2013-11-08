@@ -17,17 +17,6 @@ public class WordNode {
 		this.word = word;
 	}
 	
-	/*public WordNode(String word, WordNode next){
-		this.word = word;
-		this.next = next;
-	}
-	
-	public WordNode(String word, WordNode next, WordNode previous){
-		this.word = word;
-		this.next = next;
-		this.previous = previous;
-	}*/
-	
 	
 	// Accessors
 	public String getWord(){return this.word;}

@@ -34,10 +34,6 @@ public class Trie {
 		
 		temporary_node = this.head;
 		
-		/*if(word.length() == 1)
-			temporary_node.updateEnd();
-			return true;*/
-		
 		for(i=1; i < word.length(); ++i){
 			if((temporary_child = temporary_node.getChild(word.charAt(i))) == null)
 				break;

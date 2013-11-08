@@ -42,8 +42,6 @@ public class LinkedList {
 	}
 	
 	public void add(WordNode node){
-		//WordNode node = new WordNode(word);
-		//boolean success = false;
 		WordNode temporary_node;
 		
 		if (this.counter <= 0){
@@ -52,9 +50,6 @@ public class LinkedList {
 			this.head.updateNext(node);
 			
 			++this.counter;
-			
-			// DEBUGGING PURPOSES ONLY
-			//System.out.println("Added HEAD");
 			
 		}else{
 			temporary_node = this.head.getPrevious();
@@ -66,9 +61,6 @@ public class LinkedList {
 			node.updatePrevious(temporary_node);
 			
 			++this.counter;
-			
-			// DEBUGGING PURPOSES ONLY
-			//System.out.println("Added Another");
 		}
 		
 	}
