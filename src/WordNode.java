@@ -6,8 +6,6 @@ public class WordNode {
 	private String word;
 	private WordNode next;
 	private WordNode previous;
-	private WordNode[] parents;
-	private WordNode[] children;
 	
 	
 	// Constructors

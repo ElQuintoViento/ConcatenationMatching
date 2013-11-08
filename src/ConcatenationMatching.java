@@ -32,7 +32,13 @@ public class ConcatenationMatching {
 	}
 	
 	
-	
+	/**
+	 * This method ends up creating 26 threads which each set up a trie based upon the char that
+	 * each is associated with.  These tries will end up being read by the 26 future threads that
+	 * will find all the formable words.
+	 * @param lists
+	 * @param tries
+	 */
 	public static void createTries(LinkedList[] lists, Trie[] tries){
 		Thread[] trie_threads = new Thread[26];
 		WordNode temporary_node;
@@ -58,7 +64,14 @@ public class ConcatenationMatching {
 	}
 	
 	
-	
+	/**
+	 * This method ends up creating 26 other threads which will find all the formable words within
+	 * each trie (which starts with a to z, 26 letters).  These words are then added to their
+	 * associated linked list('a' to 0, 'b' to 1,..., 'z' to 25)
+	 * @param lists
+	 * @param tries
+	 * @param formable_words
+	 */
 	public static void findFormableWords(LinkedList[] lists, Trie[] tries, LinkedList[] formable_words){
 		Thread[] find_threads = new Thread[26];
 		
@@ -79,7 +92,14 @@ public class ConcatenationMatching {
 	}
 	
 	
-	
+	/**
+	 * This method is used to group the largest word or words into one linked list.  While these
+	 * words are being found, it tallies up the total amount of words that can be formed by smaller
+	 * words within the list.  This amount is returned to the calling method.
+	 * @param formable_words
+	 * @param largest_formable_words
+	 * @return formable_word_amount
+	 */
 	public static int groupLargestWordOrWords(LinkedList[] formable_words, LinkedList largest_formable_words){
 		int formable_word_amount = 0;
 		int largest_length = 0;
@@ -126,7 +146,11 @@ public class ConcatenationMatching {
 	}
 	
 	
-	
+	/**
+	 * This method is simply used to output the results in a predetermined, custom format.
+	 * @param largest_formable_words
+	 * @param formable_word_amount
+	 */
 	public static void outputResults(LinkedList largest_formable_words, int formable_word_amount){
 		WordNode next_node;
 		
@@ -161,6 +185,11 @@ public class ConcatenationMatching {
 	
 	
 	
+	public static void improperCommandLinePrompt(){
+		System.err.println("\nError: Exactly One Argument Is Allowed.\nPlease Try Again.\n");
+	}
+	
+	
 	public static void displayIOError(String io_message){
 		System.err.println("\nError: Faulty Input Was Provided Or General IO Issues Have Occurred\n" +
 				"Please Read Error Message To Have A Better Understanding Of The Error:\n"+
@@ -168,10 +197,25 @@ public class ConcatenationMatching {
 	}
 	
 	
-	
+	/**
+	 * As specified by the criteria provided by Solomo Technologies, this program is supposed to
+	 * take in a text file which only consists of lower case letters that form words.  Each line
+	 * has one "word"(can be nonsense, but no spaces) that has a newline character that follows.
+	 * THE MAIN OBJECTIVE of this program is to find the largest word or words that can be formed
+	 * by concatenating other smaller words that can be found in the list.  After returning the
+	 * largest word or words, it goes on to say how many other words can be formed by smaller words
+	 * of the list.  As one will notice, this program uses multithreading to both create tries and
+	 * to read these tries, finding the words that can be formed.
+	 * @param args which
+	 */
 	public static void main(String[] args) {
 		
-		try(BufferedReader buffer_reader = new BufferedReader(new FileReader("C:\\Users\\Thor\\Downloads\\words.txt"))){
+		if(args.length != 1){
+			improperCommandLinePrompt();
+			return;
+		}
+		
+		try(BufferedReader buffer_reader = new BufferedReader(new FileReader(args[0]))){
 			
 			int index = -1;
 			int largest_length = 0;
